@@ -1,0 +1,27 @@
+
+.card-link:hover .card {
+  border-color: teal;
+}
+
+.plan-card:hover,
+.report-card:hover,
+.profile-card:hover {
+  transform: translateY(-5px);
+  transition: transform 0.3s ease;
+  border-color: teal;
+}
+
+.btn-black {
+  background-color: teal;
+  color: white;
+  border-color: teal;
+}
+
+.btn-black:hover {
+  background-color: #0056b3; 
+  border-color: #0056b3;
+}
+
+.card-description {
+  color: black;
+}

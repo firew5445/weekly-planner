@@ -1,0 +1,17 @@
+.password-strength {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+  }
+  
+  .strength-bar {
+    width: 33%;
+    height: 5px;
+    background-color: #ddd;
+    transition: background-color 0.3s;
+  }
+  
+  .strength-bar.filled {
+    background-color: green;
+  }
+  

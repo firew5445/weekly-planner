@@ -1,134 +1,49 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-
-import AuthService from "./services/auth.service";
-
+import Home from "./components/Home";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import Home from "./components/Home";
+import Dashboard from "./components/Dashboard";
+import Navbar from "./components/Navbar";
+import Reports from "./components/Reports";
 import Profile from "./components/Profile";
-import BoardUser from "./components/BoardUser";
-import BoardModerator from "./components/BoardModerator";
-import BoardAdmin from "./components/BoardAdmin";
-
-// import AuthVerify from "./common/AuthVerify";
-import EventBus from "./common/EventBus";
-
+import Plan from "./components/Plan";
+import approver_dashboard from "./components/approver_dashboard";
+import admin_dashboard from "./components/admin_dashboard";
+import approvers_list from "./components/approvers_list";
 const App = () => {
-  const [showModeratorBoard, setShowModeratorBoard] = useState(false);
-  const [showAdminBoard, setShowAdminBoard] = useState(false);
-  const [currentUser, setCurrentUser] = useState(undefined);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useEffect(() => {
-    const user = AuthService.getCurrentUser();
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
 
-    if (user) {
-      setCurrentUser(user);
-      setShowModeratorBoard(user.roles.includes("ROLE_MODERATOR"));
-      setShowAdminBoard(user.roles.includes("ROLE_ADMIN"));
-    }
-
-    EventBus.on("logout", () => {
-      logOut();
-    });
-
-    return () => {
-      EventBus.remove("logout");
-    };
-  }, []);
-
-  const logOut = () => {
-    AuthService.logout();
-    setShowModeratorBoard(false);
-    setShowAdminBoard(false);
-    setCurrentUser(undefined);
+  const handleLogout = () => {
+    setIsLoggedIn(false);
   };
 
   return (
-    <div>
-      <nav className="navbar navbar-expand navbar-dark bg-dark">
-        <Link to={"/"} className="navbar-brand">
-          bezKoder
-        </Link>
-        <div className="navbar-nav mr-auto">
-          <li className="nav-item">
-            <Link to={"/home"} className="nav-link">
-              Home
-            </Link>
-          </li>
-
-          {showModeratorBoard && (
-            <li className="nav-item">
-              <Link to={"/mod"} className="nav-link">
-                Moderator Board
-              </Link>
-            </li>
-          )}
-
-          {showAdminBoard && (
-            <li className="nav-item">
-              <Link to={"/admin"} className="nav-link">
-                Admin Board
-              </Link>
-            </li>
-          )}
-
-          {currentUser && (
-            <li className="nav-item">
-              <Link to={"/user"} className="nav-link">
-                User
-              </Link>
-            </li>
-          )}
-        </div>
-
-        {currentUser ? (
-          <div className="navbar-nav ml-auto">
-            <li className="nav-item">
-              <Link to={"/profile"} className="nav-link">
-                {currentUser.username}
-              </Link>
-            </li>
-            <li className="nav-item">
-              <a href="/login" className="nav-link" onClick={logOut}>
-                LogOut
-              </a>
-            </li>
-          </div>
-        ) : (
-          <div className="navbar-nav ml-auto">
-            <li className="nav-item">
-              <Link to={"/login"} className="nav-link">
-                Login
-              </Link>
-            </li>
-
-            <li className="nav-item">
-              <Link to={"/register"} className="nav-link">
-                Sign Up
-              </Link>
-            </li>
-          </div>
-        )}
-      </nav>
-
-      <div className="container mt-3">
-        <Routes>
-          <Route exact path={"/"} element={<Home />} />
-          <Route exact path={"/home"} element={<Home />} />
-          <Route exact path="/login" element={<Login />} />
-          <Route exact path="/register" element={<Register />} />
-          <Route exact path="/profile" element={<Profile />} />
-          <Route path="/user" element={<BoardUser />} />
-          <Route path="/mod" element={<BoardModerator />} />
-          <Route path="/admin" element={<BoardAdmin />} />
-        </Routes>
-      </div>
-
-      {/* <AuthVerify logOut={logOut}/> */}
-    </div>
+    React.createElement("div", null,
+      React.createElement(Navbar, { isLoggedIn: isLoggedIn, handleLogout: handleLogout }),
+      React.createElement("div", { className: "container mt-3" },
+        React.createElement(Routes, null,
+          React.createElement(Route, { path: "/", element: React.createElement(Home, null) }),
+          React.createElement(Route, { path: "/login", element: React.createElement(Login, { handleLogin: handleLogin }) }),
+          React.createElement(Route, { path: "/register", element: React.createElement(Register, null) }),
+          React.createElement(Route, { path: "/plan", element: React.createElement(Plan, null) }),
+          React.createElement(Route, { path: "/report", element: React.createElement(Reports, null) }),  
+          React.createElement(Route, { path: "/profile", element: React.createElement(Profile, null) }),
+          React.createElement(Route, { path: "/approver_dashboard", element: React.createElement(approver_dashboard, null) }),
+          React.createElement(Route, { path: "/admin_dashboard", element: React.createElement(admin_dashboard, null) }),
+          React.createElement(Route, { path: "/dashboard/*", element: React.createElement(Dashboard, null) }),
+          React.createElement(Route, { path: "/approvers_list", element: React.createElement(approvers_list, null) }),
+          React.createElement(Route, { path: "/logout", element: React.createElement(Navigate, { to: "/login" }) }),
+          React.createElement(Route, { path: "*", element: React.createElement(Navigate, { to: "/" }) })
+        )
+      )
+    )
   );
 };
 
