@@ -1,23 +1,16 @@
 import React, { useState, useEffect } from "react";
 import html2canvas from "html2canvas";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 const PlanRow = ({ plan, onDelete, onEdit, onWeekChange }) => {
   const getDayName = (index) => {
     switch (index) {
-      case 0:
-        return "Monday";
-      case 1:
-        return "Tuesday";
-      case 2:
-        return "Wednesday";
-      case 3:
-        return "Thursday";
-      case 4:
-        return "Friday";
-      default:
-        return "";
+      case 0: return "Monday";
+      case 1: return "Tuesday";
+      case 2: return "Wednesday";
+      case 3: return "Thursday";
+      case 4: return "Friday";
+      default: return "";
     }
   };
 
@@ -36,10 +29,7 @@ const PlanRow = ({ plan, onDelete, onEdit, onWeekChange }) => {
       </td>
       {["monday", "tuesday", "wednesday", "thursday", "friday"].map(
         (day, index) => (
-          <td
-            key={index}
-            style={{ border: "1px solid black", padding: "10px" }}
-          >
+          <td key={index} style={{ border: "1px solid black", padding: "10px" }}>
             <input
               type="checkbox"
               checked={plan.days_of_week.includes(day)}
@@ -58,10 +48,7 @@ const PlanRow = ({ plan, onDelete, onEdit, onWeekChange }) => {
         />
       </td>
       <td style={{ border: "1px solid black", padding: "10px" }}>
-        <button
-          className="btn btn-danger btn-sm"
-          onClick={() => onDelete(plan.id)}
-        >
+        <button onClick={() => onDelete(plan.id)} className="btn btn-danger">
           Delete
         </button>
       </td>
@@ -69,61 +56,47 @@ const PlanRow = ({ plan, onDelete, onEdit, onWeekChange }) => {
   );
 };
 
-const PlanManagement = () => {
+const Myplans = () => {
   const [plans, setPlans] = useState([]);
-  const [submittedOn, setSubmittedOn] = useState("");
-  const [endedOn, setEndedOn] = useState("");
+
+  const fetchPlans = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/user_plans", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      setPlans(response.data);
+    } catch (error) {
+      console.error("Error fetching plans:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        const response = await axios.get("/api/plans");
-        setPlans(response.data);
-      } catch (error) {
-        console.error("Error fetching plans:", error);
-      }
-    };
-
     fetchPlans();
-
-    const today = new Date();
-    const options = {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
-    const formattedDate = today.toLocaleDateString("en-US", options);
-    setSubmittedOn(formattedDate);
-    const endedOnDate = new Date(today);
-    endedOnDate.setDate(endedOnDate.getDate() + 5);
-    const formattedEndedOnDate = endedOnDate.toLocaleDateString(
-      "en-US",
-      options
-    );
-    setEndedOn(formattedEndedOnDate);
+    const interval = setInterval(fetchPlans, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  const handleAddPlan = () => {
-    setPlans((prevPlans) => [
-      ...prevPlans,
-      {
-        id: Date.now(),
-        plan_no: prevPlans.length + 1,
-        plan_name: "",
-        days_of_week: [],
-        feedback: "",
-      },
-    ]);
+  const handleDeletePlan = async (planId) => {
+    // Confirm deletion
+    const confirmed = window.confirm("Are you sure you want to delete this plan?");
+    if (!confirmed) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/api/plans/${planId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      
+      // Immediately update state to reflect the deletion
+      setPlans((prevPlans) => prevPlans.filter((plan) => plan.id !== planId));
+    } catch (error) {
+      console.error("Error deleting plan:", error);
+    }
   };
 
-  const handleDeletePlan = (reportId) => {
-    setPlans((prevPlans) =>
-      prevPlans
-        .filter((plan) => plan.id !== reportId)
-        .map((plan, index) => ({ ...plan, reportNo: index + 1 }))
-    );
-  };
   const handleEditPlan = (planId, newName) => {
     setPlans((prevPlans) =>
       prevPlans.map((plan) =>
@@ -195,40 +168,14 @@ const PlanManagement = () => {
       actionColumns.forEach((col) => (col.style.display = ""));
     });
   };
-       
-  const handleSubmit = async () => {
-    const token = localStorage.getItem("accessToken");
-    console.log(token);
-    try {
-      await axios.post(
-        "http://localhost:5000/api/plans",
-        { plans },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Replace `token` with the actual JWT
-          },
-        }
-      );
-      alert("Plans submitted successfully");
-    } catch (error) {
-      console.error("Error submitting plans:", error);
-      alert("Failed to submit plans");
-    }
-  };
-  
+
   return (
     <div style={{ textAlign: "center" }}>
       <h1>Sidama Science and Technology</h1>
-      <p>
-        Submitted on:{" "}
-        <span style={{ textDecoration: "underline" }}>{submittedOn}</span>
-      </p>
-      <p>
-        Ended on: <span style={{ textDecoration: "underline" }}>{endedOn}</span>
-      </p>
+
       <div
         id="planTableContainer"
-        style={{ position: "relative", margin: "auto" }}
+        style={{ position: "relative", margin: "auto", width: "100%" }}
       >
         <table
           id="planTable"
@@ -252,18 +199,15 @@ const PlanManagement = () => {
               </th>
               {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map(
                 (day, index) => (
-                  <th
-                    key={index}
-                    style={{ border: "1px solid black", padding: "10px" }}
-                  >
+                  <th key={index} style={{ border: "1px solid black", padding: "10px" }}>
                     {day}
                   </th>
                 )
               )}
-              {/* <th style={{ border: "1px solid black", padding: "10px" }}>
+              <th style={{ border: "1px solid green", padding: "15px" }}>
                 Feedback
-              </th> */}
-              <th style={{ border: "1px solid black", padding: "10px" }}>
+              </th>
+              <th style={{ border: "1px solid black", padding: "15px" }}>
                 Actions
               </th>
             </tr>
@@ -279,22 +223,12 @@ const PlanManagement = () => {
               />
             ))}
             <tr>
-              <td colSpan={6}></td>
+              <td colSpan={7}></td>
             </tr>
           </tbody>
         </table>
 
         <div style={{ marginTop: "10px" }}>
-          <button className="btn btn-primary" onClick={handleAddPlan}>
-            Add Plan
-          </button>
-          <button
-            className="btn btn-success"
-            onClick={handleSubmit}
-            style={{ marginLeft: "10px" }}
-          >
-            Submit Plans
-          </button>
           <button
             className="btn btn-info"
             onClick={handleSave}
@@ -308,4 +242,4 @@ const PlanManagement = () => {
   );
 };
 
-export default PlanManagement;
+export default Myplans;

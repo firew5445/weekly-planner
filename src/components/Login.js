@@ -21,6 +21,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [token, setToken] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
   const navigate = useNavigate();
@@ -55,13 +56,17 @@ const Login = () => {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("role", role);
 
+      const token = localStorage.getItem("accessToken");
+
+      if (!token) return;
+
       // alert("Login successful");
 
       if (role === "admin") {
         navigate("/admin_dashboard");
       } else if (role === "approver") {
         navigate("/approver_dashboard");
-      } else if (role === "User") {
+      } else if (role === "user") {
         navigate("/dashboard");
       }
     } catch (error) {

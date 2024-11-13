@@ -1,0 +1,53 @@
+.overview-statics-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: auto;
+}
+
+.overview-statics {
+  padding: 1rem 2rem;
+  background-color: rgb(248 250 252);
+  border-radius: 5px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.overview-statics:hover {
+  cursor: pointer;
+}
+
+.user {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* gap: 2px; */
+}
+p {
+  margin: 0;
+}
+
+.icon {
+  background-color: aqua;
+  padding: 6px 10px;
+  border-radius: 5px;
+}
+.chart-container {
+  display: grid;
+  /* grid-template-columns: repeat(2, 1fr); */
+  grid-template-columns: 1.2fr 1fr;
+  margin-top: 3rem;
+  gap: 1rem;
+}
+
+.bar-chart {
+  background-color: white;
+  padding: 1rem 0rem;
+  border-radius: 5px;
+}
+.chart-p {
+  margin-left: 3rem;
+  margin-bottom: 1rem;
+}

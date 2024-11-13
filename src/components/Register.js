@@ -1,26 +1,36 @@
 import React, { useState, useRef } from "react";
-import axios from 'axios';
+import axios from "axios";
 import Form from "react-validation/build/form";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import { isEmail } from "validator";
-import './Register.css';
+import "./Register.css";
 
 const required = (value) => {
   if (!value) {
-    return <div className="invalid-feedback d-block" style={{ color: "red" }}>This field is required!</div>;
+    return (
+      <div className="invalid-feedback d-block" style={{ color: "red" }}>
+        This field is required!
+      </div>
+    );
   }
 };
 
 const validEmail = (value) => {
   if (!isEmail(value)) {
-    return <div className="invalid-feedback d-block" style={{ color: "red" }}>This is not a valid email.</div>;
+    return (
+      <div className="invalid-feedback d-block" style={{ color: "red" }}>
+        This is not a valid email.
+      </div>
+    );
   }
 };
 
 const Register = () => {
   const form = useRef();
   const checkBtn = useRef();
+  const navigate = useNavigate(); // Initialize navigate here
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -30,7 +40,7 @@ const Register = () => {
   const [sex, setSex] = useState("");
   const [role, setRole] = useState("");
   const [department, setDepartment] = useState("");
-  const [level, setLevel] = useState("");
+  const [level, setLevel] = useState(""); // Level state
   const [successful, setSuccessful] = useState(false);
   const [message, setMessage] = useState("");
   const [passwordStrength, setPasswordStrength] = useState(0);
@@ -56,33 +66,41 @@ const Register = () => {
     form.current.validateAll();
 
     if (checkBtn.current.context._errors.length === 0) {
-        try {
-            const response = await axios.post('http://localhost:5000/api/register', {
-                firstName,
-                lastName,
-                username,
-                email,
-                password,
-                sex,
-                role,
-                department,
-                level
-            });
+      try {
+        const response = await axios.post(
+          "http://localhost:5000/api/register",
+          {
+            firstName,
+            lastName,
+            username,
+            email,
+            password,
+            sex,
+            role,
+            department,
+            level: level ? parseInt(level, 10) : null, // Convert level to number or set to null
+          }
+        );
 
-            setMessage(response.data.message);
-            setSuccessful(true);
-        } catch (error) {
-            console.error('Registration error:', error);
-            if (error.response && error.response.data && error.response.data.message) {
-                setMessage(error.response.data.message);
-            } else {
-                setMessage("An error occurred during registration.");
-            }
-            setSuccessful(false);
+        setMessage(response.data.message);
+        setSuccessful(true);
+        navigate("/login"); // Navigate to login page after successful registration
+      } catch (error) {
+        console.error("Registration error:", error);
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
+          setMessage(error.response.data.message);
+        } else {
+          setMessage("An error occurred during registration.");
         }
-    } else {
-        setMessage("Please fix the errors in the form.");
         setSuccessful(false);
+      }
+    } else {
+      setMessage("Please fix the errors in the form.");
+      setSuccessful(false);
     }
   };
 
@@ -182,12 +200,17 @@ const Register = () => {
 
   return (
     <div className="col-md-12">
-      <div className="card card-container" style={{ backgroundColor: "#F5F5F5" }}>
+      <div
+        className="card card-container"
+        style={{ backgroundColor: "#F5F5F5" }}
+      >
         <Form onSubmit={handleRegister} ref={form}>
           {!successful && (
             <div>
               <div className="form-group">
-                <label htmlFor="firstName" style={{ color: "black" }}>First Name</label>
+                <label htmlFor="firstName" style={{ color: "black" }}>
+                  First Name
+                </label>
                 <Input
                   type="text"
                   className="form-control"
@@ -199,7 +222,9 @@ const Register = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="lastName" style={{ color: "black" }}>Last Name</label>
+                <label htmlFor="lastName" style={{ color: "black" }}>
+                  Last Name
+                </label>
                 <Input
                   type="text"
                   className="form-control"
@@ -211,7 +236,9 @@ const Register = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="username" style={{ color: "black" }}>Username</label>
+                <label htmlFor="username" style={{ color: "black" }}>
+                  Username
+                </label>
                 <Input
                   type="text"
                   className="form-control"
@@ -223,7 +250,9 @@ const Register = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="email" style={{ color: "black" }}>Email</label>
+                <label htmlFor="email" style={{ color: "black" }}>
+                  Email
+                </label>
                 <Input
                   type="text"
                   className="form-control"
@@ -235,7 +264,9 @@ const Register = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="password" style={{ color: "black" }}>Password</label>
+                <label htmlFor="password" style={{ color: "black" }}>
+                  Password
+                </label>
                 <Input
                   type="password"
                   className="form-control"
@@ -246,13 +277,27 @@ const Register = () => {
                   style={getInputStyle("password")}
                 />
                 <div className="password-strength">
-                  <div className={`strength-bar ${passwordStrength >= 1 ? 'filled' : ''}`} />
-                  <div className={`strength-bar ${passwordStrength >= 2 ? 'filled' : ''}`} />
-                  <div className={`strength-bar ${passwordStrength >= 3 ? 'filled' : ''}`} />
+                  <div
+                    className={`strength-bar ${
+                      passwordStrength >= 1 ? "filled" : ""
+                    }`}
+                  />
+                  <div
+                    className={`strength-bar ${
+                      passwordStrength >= 2 ? "filled" : ""
+                    }`}
+                  />
+                  <div
+                    className={`strength-bar ${
+                      passwordStrength >= 3 ? "filled" : ""
+                    }`}
+                  />
                 </div>
               </div>
               <div className="form-group">
-                <label htmlFor="sex" style={{ color: "black" }}>Sex</label>
+                <label htmlFor="sex" style={{ color: "black" }}>
+                  Sex
+                </label>
                 <select
                   className="form-control"
                   name="sex"
@@ -267,7 +312,9 @@ const Register = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="level" style={{ color: "black" }}>Level</label>
+                <label htmlFor="level" style={{ color: "black" }}>
+                  Level
+                </label>
                 <select
                   className="form-control"
                   name="level"
@@ -278,12 +325,16 @@ const Register = () => {
                 >
                   <option value="">Select Level</option>
                   {[...Array(15)].map((_, index) => (
-                    <option key={index} value={index + 1}>{generateRomanNumeral(index + 1)}</option>
+                    <option key={index} value={index + 1}>
+                      {generateRomanNumeral(index + 1)}
+                    </option>
                   ))}
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="role" style={{ color: "black" }}>Role</label>
+                <label htmlFor="role" style={{ color: "black" }}>
+                  Role
+                </label>
                 <select
                   className="form-control"
                   name="role"
@@ -299,7 +350,9 @@ const Register = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="department" style={{ color: "black" }}>Department</label>
+                <label htmlFor="department" style={{ color: "black" }}>
+                  Department
+                </label>
                 <select
                   className="form-control"
                   name="department"
@@ -309,14 +362,30 @@ const Register = () => {
                   style={getInputStyle("department")}
                 >
                   <option value="">Select Department</option>
-                  <option value="Electronic Services and Application Development Directorate">ESAADD</option>
-                  <option value="Planning and Budget Preparation Monitoring and Evaluation Directorate">PABPMAED</option>
-                  <option value="Directorate of Procurement Finance and Property Management">DOPFAPM</option>
-                  <option value="Access to Science and Technology, Radiation Protection and Intellectual Property Protection Directorate">STRPIPD</option>
-                  <option value="Ecote Infrastructure and Service Management Directorate">EISMD</option>
-                  <option value="Directorate of Human Resource Management">DHRM</option>
-                  <option value="Ecote Private Entrepreneurship and Community Information Centers Management Directorate">EPEACICMD</option>
-                  <option value="Internal Audit Support and Monitoring Directorate">IASAMD</option>
+                  <option value="Electronic Services and Application Development Directorate">
+                    ESAADD
+                  </option>
+                  <option value="Planning and Budget Preparation Monitoring and Evaluation Directorate">
+                    PABPMAED
+                  </option>
+                  <option value="Directorate of Procurement Finance and Property Management">
+                    DOPFAPM
+                  </option>
+                  <option value="Access to Science and Technology, Radiation Protection and Intellectual Property Protection Directorate">
+                    STRPIPD
+                  </option>
+                  <option value="Ecote Infrastructure and Service Management Directorate">
+                    EISMD
+                  </option>
+                  <option value="Directorate of Human Resource Management">
+                    DHRM
+                  </option>
+                  <option value="Ecote Private Entrepreneurship and Community Information Centers Management Directorate">
+                    EPEACICMD
+                  </option>
+                  <option value="Internal Audit Support and Monitoring Directorate">
+                    IASAMD
+                  </option>
                 </select>
               </div>
               <div className="form-group">
@@ -326,7 +395,13 @@ const Register = () => {
           )}
           {message && (
             <div className="form-group">
-              <div className={successful ? "alert alert-success" : "alert alert-danger"} role="alert" style={{ color: "white" }}>
+              <div
+                className={
+                  successful ? "alert alert-success" : "alert alert-danger"
+                }
+                role="alert"
+                style={{ color: "white" }}
+              >
                 {message}
               </div>
             </div>
